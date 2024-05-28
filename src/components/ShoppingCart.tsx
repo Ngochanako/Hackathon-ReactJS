@@ -61,7 +61,7 @@ export default function ShoppingCart() {
     localStorage.setItem('listProduct', JSON.stringify(listProductFix));
   }, []);
 
-  // Retrieve product list from localStorage
+  // Initialize ListProduct from ListProductFix
   const [listProduct, setListProduct] = useState<Product[]>(listProductFix);
 
   // Retrieve cart from localStorage
