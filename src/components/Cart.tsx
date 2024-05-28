@@ -1,26 +1,32 @@
 import React from 'react';
-
+type Product = {
+    id: number;
+    img: string;
+    name: string;
+    detail: string;
+    price: number;
+    quantity: number;
+  };
 type CartProduct = {
   id: number;
   name: string;
   price: number;
   quantity: number;
   idProduct: number;
+  quantityChange:number;
 };
 
 type Props = {
   product: CartProduct;
   index: number;
   deleteItem: (id: number) => void;
-  update: (id: number, quantity: number) => void;
+  update: (id: number) => void;
+  handleQuantityChange:(id:number,e:React.ChangeEvent<HTMLInputElement>)=>void;
 };
 
-export default function Cart({ product, index, deleteItem, update }: Props) {
-  const handleQuantityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuantity = parseInt(e.target.value);
-    update(product.idProduct, newQuantity);
-  };
-
+export default function Cart({ product, index, deleteItem, update,handleQuantityChange }: Props) {
+    let listProduct:Product[]=JSON.parse(localStorage.getItem("listProduct")||'[]');
+    let productFind=listProduct.find(item=>item.id===product.idProduct);
   return (
     <tr>
       <th scope="row">{index + 1}</th>
@@ -30,12 +36,14 @@ export default function Cart({ product, index, deleteItem, update }: Props) {
         <input
           name="cart-item-quantity-1"
           type="number"
-          value={product.quantity}
-          onChange={handleQuantityChange}
+          min={1}
+          max={productFind?.quantity}
+          value={product.quantityChange}
+          onChange={(e)=>handleQuantityChange(product.id,e)}
         />
       </td>
       <td>
-        <a className="label label-info update-cart-item" data-product="">
+        <a onClick={()=>update(product.id)} className="label label-info update-cart-item" data-product="">
           Update
         </a>
         <a

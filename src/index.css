@@ -71,3 +71,6 @@ div.product div.media-body a.price:hover{
 	color:#FF0000;
 	font-size: 16px;
 }
+button,a{
+  cursor: pointer;
+}

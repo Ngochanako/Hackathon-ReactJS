@@ -17,6 +17,7 @@ type CartProduct = {
   name: string;
   price: number;
   quantity: number;
+  quantityChange:number;
 };
 
 export default function ShoppingCart() {
@@ -28,7 +29,7 @@ export default function ShoppingCart() {
       name: 'Pizza',
       detail: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. At dicta asperiores veniam repellat unde debitis quisquam magnam magni ut deleniti!',
       price: 30,
-      quantity: 10,
+      quantity: 0,
     },
     {
       id: 2,
@@ -61,25 +62,25 @@ export default function ShoppingCart() {
   }, []);
 
   // Retrieve product list from localStorage
-  const [listProduct, setListProduct] = useState<Product[]>(() => {
-    let listLocal = localStorage.getItem('listProduct');
-    return listLocal ? JSON.parse(listLocal) : [];
-  });
+  const [listProduct, setListProduct] = useState<Product[]>(listProductFix);
 
   // Retrieve cart from localStorage
   const [cartLocal, setCartLocal] = useState<CartProduct[]>(() => {
     let cartLocal = localStorage.getItem('cart');
     return cartLocal ? JSON.parse(cartLocal) : [];
   });
-   //clear status Notification
-   const clearNotification=()=>{
-    setActiveProduct(false);
-    setActiveDelete(false);
-  }
-//Initialize activeProduct
+//Initialize activeAddProduct
  const [activeProduct,setActiveProduct]=useState<boolean>(false);
  //Initialize activeDelete
  const [activeDelete,setActiveDelete]=useState<boolean>(false);
+ //Initialize activeUpdate
+ const [activeUpdate,setActiveUpdate]=useState<boolean>(false);
+ //Clear status Notification
+ const clearNotification=()=>{
+    setActiveProduct(false);
+    setActiveDelete(false);
+    setActiveUpdate(false);
+  }
   // Initialize totalPrice
   const [totalPrice, setTotalPrice] = useState<number>(0);
   // Add product to cart
@@ -91,7 +92,7 @@ export default function ShoppingCart() {
         if(productInCart){
             let newCart=cartLocal.map((product) =>
                 product.idProduct === id
-                  ? { ...product, quantity: product.quantity + 1 }
+                  ? { ...product, quantity: product.quantity + 1,quantityChange:product.quantity+1 }
                   : product
               );
             setCartLocal(newCart);
@@ -105,6 +106,7 @@ export default function ShoppingCart() {
                   name: productChange.name,
                   price: productChange.price,
                   quantity: 1,
+                  quantityChange:1,
                 },
               ];
             setCartLocal(newCart);
@@ -121,18 +123,26 @@ export default function ShoppingCart() {
     const newTotalPrice = cartLocal.reduce((total, product) => total + product.price * product.quantity, 0);
     setTotalPrice(newTotalPrice);
   }, [cartLocal]);
-   //delete product from cart
+   //Delete product from cart
    const deleteItem=(id:number)=>{
       clearNotification();
       let newCart=cartLocal.filter(product=>product.id!==id);
       setCartLocal(newCart);
       setActiveDelete(true);
    }
-   //update quantity to cart
-   const update=(id:number)=>{
-        console.log(1);
-        
+   //Update quantity to cart
+   const handleQuantity=(id:number,e:React.ChangeEvent<HTMLInputElement>)=>{
+        clearNotification();
+        let value=+e.target.value;
+        let newCart=cartLocal.map(product=>product.id===id?{...product,quantityChange:value}:product);
+        setCartLocal(newCart);
    }
+   const update=(id:number)=>{  
+        clearNotification(); 
+        let newCart=cartLocal.map(product=>product.id===id?{...product,quantity:product.quantityChange}:product);
+        setCartLocal(newCart);
+        setActiveUpdate(true);
+   } 
   return (
     <>
       <div className="container">
@@ -173,9 +183,8 @@ export default function ShoppingCart() {
                     </tr>
                   </thead>
                   <tbody id="my-cart-body">
-                    {cartLocal.map((product, index) => (
-                        
-                      <Cart key={product.id} product={product} index={index} deleteItem={deleteItem} update={update} />
+                    {cartLocal.map((product, index) => (           
+                      <Cart key={product.id} product={product} index={index} deleteItem={deleteItem} update={update} handleQuantityChange={handleQuantity} />
                     ))}
                   </tbody>
                   <tfoot id="my-cart-footer">
@@ -199,6 +208,9 @@ export default function ShoppingCart() {
             </div>}
             {activeDelete &&<div className="alert alert-danger" role="alert" id="mnotification">
               Delete product successfully!
+            </div>}
+            {activeUpdate &&<div className="alert alert-warning" role="alert" id="mnotification">
+              Update product successfully!
             </div>}
           </div>
         </div>

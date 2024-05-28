@@ -31,7 +31,7 @@ export default function ListProduct({ product,addProduct }: ListProductProps) {
           <h4 className="media-heading">{product.name}</h4>
           <p>{product.detail}</p>
           {product.quantity > 0 ? (
-            <>
+            <>   
               <input
                 name={`quantity-product-${product.id}`}
                 type="number"
